@@ -40,9 +40,6 @@ async function main() {
 }
 
 
-app.listen("8080",()=>{
-    console.log("port is working")
-});
 
 // session
 
@@ -54,9 +51,9 @@ const store =  MongoStore.create({
     touchafter: 24 * 3600
 });
 
-store.on("error",(err)=>{
-    console.log("error in session store",err)
-});
+// store.on("error",(err)=>{
+//     console.log("error in session store",err)
+// });
 
 const sessionOption = {
     store,
@@ -70,8 +67,20 @@ const sessionOption = {
     }
 };
 
+app.use(session({
+    ...sessionOption,
+    store: new (require('connect-mongo'))({
+        client: await mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }),
+        ...sessionOption
+    })
+}));
 
-app.use(session(sessionOption));
+
+// app.use(session(sessionOption));
+app.listen("8080",()=>{
+    console.log("port is working")
+});
+
 app.use(flash());
 
 app.use(passport.initialize());
