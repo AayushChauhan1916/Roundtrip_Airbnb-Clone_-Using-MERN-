@@ -70,7 +70,7 @@ const sessionOption = {
 app.use(session({
     ...sessionOption,
     store: new (require('connect-mongo'))({
-        client: await mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }),
+        clientPromise: mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }),
         ...sessionOption
     })
 }));
