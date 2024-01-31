@@ -39,7 +39,17 @@ async function main() {
   await mongoose.connect(mongoUrl,{ useNewUrlParser: true, useUnifiedTopology: true });
 }
 
+const mongoClientPromise = new Promise((resolve) => {
+    mongoose.connection.on("connected", () => {
+        const client = mongoose.connection.getClient();
+        resolve(client);
+    });
+});
 
+
+app.listen("8080",()=>{
+    console.log("port is working")
+});
 
 // session
 
@@ -48,12 +58,14 @@ const store =  MongoStore.create({
     crypto: {
         secret: process.env.SECRET
     },
-    touchafter: 24 * 3600
+    touchafter: 24 * 3600,
+    clientPromise: mongoClientPromise,
+    collection : "sessions",
 });
 
-// store.on("error",(err)=>{
-//     console.log("error in session store",err)
-// });
+store.on("error",(err)=>{
+    console.log("error in session store",err)
+});
 
 const sessionOption = {
     store,
@@ -67,20 +79,8 @@ const sessionOption = {
     }
 };
 
-app.use(session({
-    ...sessionOption,
-    store: new (require('connect-mongo'))({
-        clientPromise: mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }),
-        ...sessionOption
-    })
-}));
 
-
-// app.use(session(sessionOption));
-app.listen("8080",()=>{
-    console.log("port is working")
-});
-
+app.use(session(sessionOption));
 app.use(flash());
 
 app.use(passport.initialize());
