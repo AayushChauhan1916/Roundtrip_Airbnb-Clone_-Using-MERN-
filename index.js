@@ -47,14 +47,14 @@ app.listen("8080",()=>{
 // session
 
 const store =  MongoStore.create({
-    mongoUrl : mongoUrl,
-    crypto :{
-        secret : process.env.SECRET
+    mongoUrl: mongoUrl,
+    crypto: {
+        secret: process.env.SECRET
     },
-    touchafter : 24 * 3600
+    touchafter: 24 * 3600
 });
 
-store.on("error",()=>{
+store.on("error",(err)=>{
     console.log("error in session store",err)
 });
 
